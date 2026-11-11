@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BARE BARE POSADA SPA RESTAURANT C.A.</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .active-tab {
+            border-bottom: 2px solid #b91c1c;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        .bg-custom-dark {
+            background-color: #121826;
+        }
+        .card-custom {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    BB
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-100 leading-tight">BARE BARE</h1>
+                    <p class="text-xs text-slate-400">POSADA • SPA • RESTAURANTE C.A.</p>
+                </div>
+            </div>
+
+            <!-- Tab Buttons -->
+            <nav class="flex space-x-4">
+                <button onclick="switchTab('admin')" id="tab-admin" class="px-4 py-2 text-sm font-medium transition-colors active-tab flex items-center gap-2">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Panel Administrativo
+                </button>
+                <button onclick="switchTab('guest')" id="tab-guest" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Portal de Reservas
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Content Wrapper -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ================= PANEL ADMINISTRATIVO ================= -->
+        <section id="admin-view" class="space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-xl border border-slate-800">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100">Gestión de Ocupación & Reservas</h2>
+                    <p class="text-sm text-slate-400">Monitoreo en tiempo real de habitaciones y eventos</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Sincronizado (n8n Webhook)
+                    </span>
+                    <button onclick="fetchReservations()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm flex items-center gap-2 border border-slate-700 transition">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase">Habitaciones Totales</p>
+                        <h3 class="text-2xl font-bold text-white mt-1">12</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                        <i data-lucide="bed" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase">Ocupadas Hoy</p>
+                        <h3 class="text-2xl font-bold text-amber-400 mt-1" id="stat-occupied">4</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-lg flex items-center justify-center">
+                        <i data-lucide="user-check" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase">Disponibles</p>
+                        <h3 class="text-2xl font-bold text-emerald-400 mt-1" id="stat-available">8</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase">Próximas Llegadas</p>
+                        <h3 class="text-2xl font-bold text-indigo-400 mt-1" id="stat-pending">3</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-lg flex items-center justify-center">
+                        <i data-lucide="calendar-clock" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Table -->
+            <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                <div class="p-4 sm:p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="filter-start" class="bg-slate-950 text-slate-200 text-sm rounded-lg p-2.5 border border-slate-800 focus:outline-none focus:border-red-600">
+                        <span class="text-slate-500">a</span>
+                        <input type="date" id="filter-end" class="bg-slate-950 text-slate-200 text-sm rounded-lg p-2.5 border border-slate-800 focus:outline-none focus:border-red-600">
+                        <button onclick="applyFilter()" class="bg-red-700 hover:bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition">Filtrar</button>
+                    </div>
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="text" id="search-input" onkeyup="searchTable()" placeholder="Buscar cliente o hab..." class="bg-slate-950 text-slate-200 text-sm rounded-lg pl-9 pr-4 py-2.5 border border-slate-800 w-full sm:w-64 focus:outline-none focus:border-red-600">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead class="text-xs uppercase bg-slate-950 text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="px-6 py-4">Huésped</th>
+                                <th class="px-6 py-4">Habitación / Servicio</th>
+                                <th class="px-6 py-4">Entrada</th>
+                                <th class="px-6 py-4">Salida</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservations-table-body" class="divide-y divide-slate-800">
+                            <!-- Injected JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PORTAL DE RESERVAS ================= -->
+        <section id="guest-view" class="hidden max-w-3xl mx-auto space-y-6">
+            <div class="bg-slate-900 p-6 sm:p-8 rounded-xl border border-slate-800 shadow-xl">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white">Reserva tu Estancia en Bare Bare</h2>
+                    <p class="text-sm text-slate-400 mt-1">Disfruta de una experiencia de descanso inolvidable en Posada, Spa y Restaurante.</p>
+                </div>
+
+                <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Nombre Completo</label>
+                            <input type="text" required id="guest-name" placeholder="Ej. Alix Botía" class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Teléfono / WhatsApp</label>
+                            <input type="tel" required id="guest-phone" placeholder="+58 414 1234567" class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Fecha de Check-In</label>
+                            <input type="date" required id="check-in" class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Fecha de Check-Out</label>
+                            <input type="date" required id="check-out" class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Tipo de Alojamiento / Servicio</label>
+                            <select id="room-type" class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm">
+                                <option value="Habitación Suite Matrimonial">Suite Matrimonial</option>
+                                <option value="Habitación Doble Deluxe">Doble Deluxe</option>
+                                <option value="Cabaña Familiar">Cabaña Familiar</option>
+                                <option value="Día de Spa & Relax">Día de Spa & Relax</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Número de Huéspedes</label>
+                            <input type="number" min="1" max="10" value="2" id="guest-count" class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Solicitudes Especiales</label>
+                        <textarea id="special-requests" rows="3" placeholder="Información sobre cena, requerimientos dietéticos o masajes spa..." class="w-full bg-slate-950 text-slate-200 rounded-lg p-3 border border-slate-800 focus:border-red-600 focus:outline-none text-sm"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3.5 px-4 rounded-lg shadow-lg hover:shadow-red-700/30 transition flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-5 h-5"></i> Confirmar y Enviar Reserva
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        © 2026 Bare Bare Posada Spa Restaurant C.A. Todos los derechos reservados.
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // Broadcast Channel for live tab sync
+        const channel = new BroadcastChannel('barebare_reservations');
+
+        // Sample initial data
+        let reservations = [
+            { id: 1, guest: 'Carlos Mendoza', room: 'Suite Matrimonial', checkIn: '2026-11-12', checkOut: '2026-11-15', status: 'Confirmada' },
+            { id: 2, guest: 'María Hernández', room: 'Doble Deluxe', checkIn: '2026-11-11', checkOut: '2026-11-13', status: 'En Hospedaje' },
+            { id: 3, guest: 'Roberto Gómez', room: 'Cabaña Familiar', checkIn: '2026-11-20', checkOut: '2026-11-25', status: 'Pendiente' },
+            { id: 4, guest: 'Elena Rostova', room: 'Día de Spa & Relax', checkIn: '2026-11-11', checkOut: '2026-11-11', status: 'Completada' }
+        ];
+
+        function renderTable(data) {
+            const tbody = document.getElementById('reservations-table-body');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                let badgeClass = 'bg-slate-700 text-slate-300';
+                if(item.status === 'Confirmada') badgeClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                if(item.status === 'En Hospedaje') badgeClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                if(item.status === 'Pendiente') badgeClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="px-6 py-4 font-medium text-white">\${item.guest}</td>
+                        <td class="px-6 py-4">\${item.room}</td>
+                        <td class="px-6 py-4">\${item.checkIn}</td>
+                        <td class="px-6 py-4">\${item.checkOut}</td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs \${badgeClass}">\${item.status}</span></td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="deleteReservation(\${item.id})" class="text-slate-500 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function switchTab(tab) {
+            if (tab === 'admin') {
+                document.getElementById('admin-view').classList.remove('hidden');
+                document.getElementById('guest-view').classList.add('hidden');
+                document.getElementById('tab-admin').classList.add('active-tab');
+                document.getElementById('tab-guest').classList.remove('active-tab');
+            } else {
+                document.getElementById('admin-view').classList.add('hidden');
+                document.getElementById('guest-view').classList.remove('hidden');
+                document.getElementById('tab-guest').classList.add('active-tab');
+                document.getElementById('tab-admin').classList.remove('active-tab');
+            }
+        }
+
+        function handleBookingSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('guest-name').value;
+            const phone = document.getElementById('guest-phone').value;
+            const inDate = document.getElementById('check-in').value;
+            const outDate = document.getElementById('check-out').value;
+            const room = document.getElementById('room-type').value;
+
+            const newRes = {
+                id: Date.now(),
+                guest: name,
+                room: room,
+                checkIn: inDate,
+                checkOut: outDate,
+                status: 'Pendiente'
+            };
+
+            reservations.unshift(newRes);
+            renderTable(reservations);
+
+            // Webhook trigger simulation / payload
+            const webhookUrl = 'https://agentesingenieriadigitalplus-n8n.o9lcit.easypanel.host/webhook/9d54e420-1a7f-4c55-89bd-a0fa02ee32b3';
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newRes)
+            }).catch(() => console.log('Webhook dispatched to endpoint'));
+
+            // Broadcast channel message
+            channel.postMessage({ type: 'NEW_RESERVATION', data: newRes });
+
+            alert('¡Reserva registrada con éxito! El panel administrativo se ha actualizado.');
+            document.getElementById('booking-form').reset();
+            switchTab('admin');
+        }
+
+        function deleteReservation(id) {
+            reservations = reservations.filter(r => r.id !== id);
+            renderTable(reservations);
+        }
+
+        function searchTable() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = reservations.filter(r => r.guest.toLowerCase().includes(query) || r.room.toLowerCase().includes(query));
+            renderTable(filtered);
+        }
+
+        // Listen for channel updates
+        channel.onmessage = (event) => {
+            if (event.data.type === 'NEW_RESERVATION') {
+                reservations.unshift(event.data.data);
+                renderTable(reservations);
+            }
+        };
+
+        // Initial Load
+        renderTable(reservations);
+    </script>
+</body>
+</html>
